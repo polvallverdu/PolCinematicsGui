@@ -72,7 +72,7 @@ final _socketStatusProvider =
 });
 
 class ClientSocket {
-  WebSocketChannel? channel = null;
+  WebSocketChannel? channel;
   bool connected = false;
   String password = "";
 
