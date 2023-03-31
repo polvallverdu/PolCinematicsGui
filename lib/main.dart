@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:polcinematicsgui/Notifiers.dart';
 import 'package:polcinematicsgui/net/socket.dart';
+import 'package:polcinematicsgui/screens/cinematics_screen.dart';
 import 'package:polcinematicsgui/screens/timeline_screen.dart';
 import 'package:polcinematicsgui/widgets/sidebar/selected.dart';
 import 'test.dart';
@@ -19,6 +21,28 @@ void main(List<String> args) {
     }
   }
   runApp(ProviderScope(child: MyApp()));
+}
+
+class TestApp extends StatelessWidget {
+  const TestApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Test PolCinematics GUI',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      debugShowCheckedModeBanner: false,
+      //debugShowMaterialGrid: true,
+      home: Stack(
+        children: [
+          TimelineScreen(),
+        ],
+      ),
+    );
+    ;
+  }
 }
 
 class LoadingScreen extends StatelessWidget {
@@ -94,6 +118,10 @@ class ServerConnectionScreen extends HookWidget {
   }
 }
 
+final screenProvider = StateNotifierProvider<ScreenNotifier, Widget>((ref) {
+  return ScreenNotifier();
+});
+
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
@@ -101,11 +129,12 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final socketStatus = ref.watch(ClientSocket().socketStatusProvider);
+    final screenToShow = ref.watch(screenProvider);
 
     Widget screen;
     switch (socketStatus) {
       case SocketStatus.LOGGED:
-        screen = TimelineScreen();
+        screen = screenToShow;
         break;
       case SocketStatus.DISCONNECTED:
       case SocketStatus.FAILED_CONNECTION:

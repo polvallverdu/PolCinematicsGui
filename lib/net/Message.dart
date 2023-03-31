@@ -2,7 +2,7 @@ import 'package:polcinematicsgui/net/socket.dart';
 
 class Message {
   MessageType type;
-  Map<String, dynamic>? data;
+  Map<String, dynamic> data;
 
   Message(this.type, [this.data = const {}]);
 

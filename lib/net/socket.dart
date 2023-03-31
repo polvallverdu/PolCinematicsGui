@@ -3,13 +3,15 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:polcinematicsgui/cinematic.dart';
 import 'package:polcinematicsgui/net/Message.dart';
-import 'package:polcinematicsgui/net/notifiers/SocketStatusNotifier.dart';
+import 'package:polcinematicsgui/Notifiers.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 enum MessageType {
   CONNECTED,
+  DISCONNECT,
   AUTH,
   INVALID_AUTH,
   LOGGED,
@@ -22,7 +24,6 @@ enum MessageType {
   RESPONSE_INVALID_CINEMATIC,
   UPDATE_COMPOSITION,
   UPDATE_TIMELINE_TIME, // TO UPDATE THE CAMERA ON THE CLIENT
-  DISCONNECT,
 }
 
 enum SocketStatus {
@@ -103,6 +104,12 @@ class ClientSocket {
       case MessageType.DISCONNECT:
         disconnect(true);
         break;
+      case MessageType.RESPONSE_CINEMATICS_LIST:
+        List<SimpleCinematic> cinematics = [];
+        for (var cinematic in message.data['cinematics']) {
+          cinematics.add(SimpleCinematic.fromJson(cinematic));
+        }
+        break;
     }
   }
 
@@ -163,6 +170,10 @@ class ClientSocket {
     };
 
     channel!.sink.add(json.encode(message));
+  }
+
+  Future<void> refreshCinematics() async {
+    await sendMessage(MessageType.GET_CINEMATICS_LIST);
   }
 
   StateNotifierProvider<SocketStatusNotifier, SocketStatus>
